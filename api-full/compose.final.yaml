@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app
+
+  api:
+    build:
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_URL: db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - /app/.venv
+      - .:/app
+    tty: true
+    ports:
+      - "8000:8000"
+    networks:
+      - app
+
+networks:
+  app:
+
+volumes:
+  postgres-data:
