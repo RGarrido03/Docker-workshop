@@ -1,4 +1,4 @@
-fastapi
+fastapi[standard]
 uvicorn
 watchfiles
 python-multipart
